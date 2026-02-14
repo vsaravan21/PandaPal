@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
 
         <Pressable
           style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
-          onPress={() => router.push('/create-panda')}
+          onPress={() => router.push('/create-panda-intro')}
         >
           <Text style={styles.primaryButtonText}>Create a New Panda</Text>
         </Pressable>
