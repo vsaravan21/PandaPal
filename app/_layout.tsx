@@ -55,6 +55,9 @@ function RootLayoutNav() {
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="create-panda" />
+        <Stack.Screen name="create-panda-intro" />
+        <Stack.Screen name="caregiver-upload" />
+        <Stack.Screen name="ai-parsing" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
