@@ -13,16 +13,21 @@ export default function MoreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#e0eeee',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 24,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    letterSpacing: 0.3,
   },
   placeholder: {
-    marginTop: 8,
-    fontSize: 16,
-    opacity: 0.6,
+    marginTop: 12,
+    fontSize: 15,
+    color: '#8E8E93',
+    letterSpacing: 0.2,
   },
 });

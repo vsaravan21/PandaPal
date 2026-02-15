@@ -12,6 +12,7 @@ const { upload, tmpDir } = require('./upload');
 const { extractText, getMimeCategory } = require('./ocr');
 const { parseWithClaude } = require('./claudeParser');
 const { mergeCarePlans } = require('./merge');
+const { handleChildChat } = require('./childChat');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -109,6 +110,13 @@ app.post(
   },
   handleUpload
 );
+
+/**
+ * POST /api/child-chat
+ * Body: { message: string, childId?: string }
+ * Returns: { reply: string }
+ */
+app.post('/api/child-chat', handleChildChat);
 
 /**
  * POST /api/confirm-care-plan

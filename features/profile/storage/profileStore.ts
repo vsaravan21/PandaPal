@@ -45,6 +45,7 @@ async function loadProfile(): Promise<ChildProfile> {
         ...(parsed.equippedItems ?? {}),
       },
       pandaAvatarId: parsed.pandaAvatarId ?? undefined,
+      childName: parsed.childName ?? undefined,
     };
   } catch {
     return { ...DEFAULT_PROFILE };
@@ -100,6 +101,13 @@ export async function unlockItem(itemId: string, costXp: number): Promise<ChildP
 export async function setPandaAvatarId(pandaAvatarId: string): Promise<ChildProfile> {
   const profile = await loadProfile();
   profile.pandaAvatarId = pandaAvatarId;
+  await saveProfile(profile);
+  return profile;
+}
+
+export async function setChildName(childName: string): Promise<ChildProfile> {
+  const profile = await loadProfile();
+  profile.childName = childName.trim() || undefined;
   await saveProfile(profile);
   return profile;
 }

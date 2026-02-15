@@ -21,4 +21,6 @@ export interface ChildProfile {
   equippedItems: Record<ItemSlot, string | null>; // slot -> item id
   /** Selected panda avatar id from onboarding; fallback "panda_default" when missing */
   pandaAvatarId?: string;
+  /** Child's name from onboarding; for greeting on Quests etc. */
+  childName?: string;
 }

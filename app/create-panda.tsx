@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { createChild } from '@/features/backend/children';
 import { uploadCareDoc, addClinicalInstructions } from '@/features/backend/carePlan';
 import { getPendingCarePlan, clearPendingCarePlan } from '@/features/backend/pendingCarePlan';
-import { setPandaAvatarId } from '@/features/profile/storage/profileStore';
+import { setPandaAvatarId, setChildName } from '@/features/profile/storage/profileStore';
 import { useProfile } from '@/features/profile/context/ProfileContext';
 import { getPandaAvatarsList } from '@/features/profile/data/pandaAvatars';
 
@@ -65,6 +65,11 @@ export default function CreatePandaScreen() {
     if (!canMeet) return;
     setSubmitting(true);
     try {
+      // Always save name and avatar to local profile so Quests shows "Hey [name]!" and correct panda
+      await setPandaAvatarId(currentAvatar.id);
+      await setChildName(childName.trim());
+      await refreshProfile();
+
       let childId: string | null = null;
       if (uid) {
         childId = await createChild(uid, {
@@ -75,8 +80,6 @@ export default function CreatePandaScreen() {
           favoritePastime: pastimeText.trim() || undefined,
           pandaSuperpower: strengthText.trim() || undefined,
         });
-        await setPandaAvatarId(currentAvatar.id);
-        await refreshProfile();
         const pending = getPendingCarePlan();
         if (pending && childId) {
           try {

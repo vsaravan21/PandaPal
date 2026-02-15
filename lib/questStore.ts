@@ -5,9 +5,10 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { addLessonReward } from '@/features/profile/storage/profileStore';
-import { getQuestSeed } from './questSeed';
+import { getQuestSeed, QUEST_SEED_VERSION } from './questSeed';
 
 const STORAGE_KEY = '@pandapal/child_quests';
+const SEED_VERSION_KEY = '@pandapal/quest_seed_version';
 
 /** Stored quest: at least id, text, reward, completed; may have category, type, schedule, etc. */
 export type StoredQuest = { id: string; text: string; reward: number; completed: boolean; [key: string]: unknown };
@@ -29,10 +30,17 @@ export async function setQuests(quests: StoredQuest[]): Promise<void> {
 
 /**
  * Use placeholder seed data only (no parsed/care-plan-generated quests).
- * If storage has seed-format quests (with category), return them so completions persist.
- * Otherwise persist and return the seed list.
+ * If storage has seed-format quests with matching version, return them so completions persist.
+ * Otherwise persist and return the current seed list.
  */
 export async function getTodayQuests(): Promise<StoredQuest[]> {
+  const storedVersion = await AsyncStorage.getItem(SEED_VERSION_KEY);
+  if (storedVersion !== String(QUEST_SEED_VERSION)) {
+    const seed = getQuestSeed();
+    await setQuests(seed);
+    await AsyncStorage.setItem(SEED_VERSION_KEY, String(QUEST_SEED_VERSION));
+    return seed;
+  }
   const stored = await getQuests();
   const isSeedFormat = stored.length > 0 && stored.every((q) => 'category' in q);
   if (isSeedFormat) return stored;

@@ -10,7 +10,6 @@ import { useProfile } from '@/features/profile/context/ProfileContext';
 import { useLessons } from '../context/LessonsContext';
 import type { LessonCategory } from '../types';
 import { LessonsTheme } from '../constants';
-import { DisclaimerBanner } from './DisclaimerBanner';
 import { LessonCard } from './LessonCard';
 
 const CATEGORIES: LessonCategory[] = [
@@ -51,7 +50,6 @@ export function LessonsHome() {
 
   return (
     <View style={styles.container}>
-      <DisclaimerBanner />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         {/* Continue card */}
         {recommendedLesson && (

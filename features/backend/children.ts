@@ -7,6 +7,7 @@ import {
   doc,
   addDoc,
   setDoc,
+  getDocs,
   getFirestore,
   serverTimestamp,
   type Firestore,
@@ -15,6 +16,17 @@ import { db } from '@/lib/firebase';
 
 const PARENTS = 'parents';
 const CHILDREN = 'children';
+
+export type ChildDoc = {
+  id: string;
+  name: string;
+  pandaName: string;
+  pandaType: string;
+  pandaAvatarId?: string;
+  favoritePastime?: string;
+  pandaSuperpower?: string;
+  createdAt?: unknown;
+};
 
 export type ChildInput = {
   name: string;
@@ -52,4 +64,24 @@ export async function updateChild(
   const firestore: Firestore = db;
   const ref = doc(firestore, PARENTS, uid, CHILDREN, childId);
   await setDoc(ref, updates, { merge: true });
+}
+
+/** Fetch all children for a parent; used e.g. to get child name for Quests greeting. */
+export async function getChildren(uid: string): Promise<ChildDoc[]> {
+  const firestore: Firestore = db;
+  const col = collection(firestore, PARENTS, uid, CHILDREN);
+  const snap = await getDocs(col);
+  return snap.docs.map((d) => {
+    const data = d.data();
+    return {
+      id: d.id,
+      name: data.name ?? '',
+      pandaName: data.pandaName ?? '',
+      pandaType: data.pandaType ?? '',
+      pandaAvatarId: data.pandaAvatarId,
+      favoritePastime: data.favoritePastime,
+      pandaSuperpower: data.pandaSuperpower,
+      createdAt: data.createdAt,
+    };
+  });
 }
