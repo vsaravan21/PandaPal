@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-export default function CreatePandaIntroScreen() {
+export default function CreatePandaIntroChildScreen() {
   return (
     <View style={styles.container}>
       <ScrollView
@@ -25,13 +25,13 @@ export default function CreatePandaIntroScreen() {
         />
 
         <View style={styles.cardStack}>
-          <View style={[styles.card, styles.cardActive]}>
+          <View style={styles.card}>
             <Text style={styles.cardTitle}>Step 1 for Grown-Ups</Text>
             <Text style={styles.cardBody}>
               Caregivers upload care plan details so PandaPal can build daily quests
             </Text>
           </View>
-          <View style={styles.card}>
+          <View style={[styles.card, styles.cardActive]}>
             <Text style={styles.cardTitle}>Step 2 for your Child</Text>
             <Text style={styles.cardBody}>
               Kids customize their panda and world
@@ -41,24 +41,24 @@ export default function CreatePandaIntroScreen() {
 
         <View style={styles.progressWrap}>
           <View style={styles.progressBar}>
-            <View style={[styles.segment, styles.segmentActive]} />
             <View style={styles.segment} />
+            <View style={[styles.segment, styles.segmentActive]} />
           </View>
-          <Text style={styles.progressLabel}>Step 1 of 2</Text>
+          <Text style={styles.progressLabel}>Step 2 of 2</Text>
         </View>
 
         <View style={styles.infoBanner}>
           <Text style={styles.infoBannerText}>
-            Caregiver and child should complete this onboarding together
+            One step closer to unlocking your Panda!
           </Text>
         </View>
 
         <Pressable
           style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
-          onPress={() => router.push('/caregiver-upload')}
-          accessibilityLabel="Start Caregiver Step"
+          onPress={() => router.push('/create-panda')}
+          accessibilityLabel="Start Child Step"
         >
-          <Text style={styles.primaryButtonText}>Start Caregiver Step</Text>
+          <Text style={styles.primaryButtonText}>Start Child Step</Text>
         </Pressable>
       </ScrollView>
     </View>

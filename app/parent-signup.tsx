@@ -13,25 +13,29 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '@/contexts/AuthContext';
 
-export default function LoginScreen() {
-  const { setHasPanda } = useAuth();
+export default function ParentSignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(true);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const canSubmit = email.trim().length > 0 && password.length > 0;
+  const passwordsMatch = password === confirmPassword;
+  const canSubmit =
+    email.trim().length > 0 &&
+    password.length > 0 &&
+    confirmPassword.length > 0 &&
+    passwordsMatch;
 
-  const handleSignIn = useCallback(() => {
+  const handleSubmit = useCallback(() => {
     if (!canSubmit || loading) return;
     setLoading(true);
-    // No backend yet – any email/password accepted
-    setHasPanda(true);
-    router.replace('/(tabs)');
+    // No backend yet – any email/password accepted; go straight to PIN flow
+    router.replace('/create-pin');
     setLoading(false);
-  }, [canSubmit, loading, setHasPanda]);
+  }, [canSubmit, loading]);
 
   return (
     <KeyboardAvoidingView
@@ -48,7 +52,7 @@ export default function LoginScreen() {
           <Text style={styles.backText}>←</Text>
         </Pressable>
 
-        <Text style={styles.title}>Sign In</Text>
+        <Text style={styles.title}>Create Parent Account</Text>
         <Image
           source={require('../assets/images/MamaPanda.png')}
           style={styles.mamaPandaImage}
@@ -73,35 +77,56 @@ export default function LoginScreen() {
           <View style={styles.passwordWrap}>
             <TextInput
               style={styles.passwordInput}
-              placeholder="Enter your password"
+              placeholder="Create a password"
               placeholderTextColor="#999"
               value={password}
               onChangeText={setPassword}
               autoCapitalize="none"
               autoCorrect={false}
-              autoComplete="password"
+              autoComplete="new-password"
             />
             <Pressable style={styles.eyeBtn} onPress={() => setShowPassword((s) => !s)} hitSlop={8}>
               <Ionicons name={showPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color="#6B6B7B" />
             </Pressable>
           </View>
+          <Text style={styles.helperSmallItalic}>At least 8 characters • At least one number</Text>
+
+          <Text style={styles.label}>Confirm password</Text>
+          <View style={[styles.passwordWrap, confirmPassword.length > 0 && !passwordsMatch && styles.inputError]}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Confirm password"
+              placeholderTextColor="#999"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="new-password"
+            />
+            <Pressable style={styles.eyeBtn} onPress={() => setShowConfirmPassword((s) => !s)} hitSlop={8}>
+              <Ionicons name={showConfirmPassword ? 'eye-outline' : 'eye-off-outline'} size={22} color="#6B6B7B" />
+            </Pressable>
+          </View>
+          {confirmPassword.length > 0 && !passwordsMatch ? (
+            <Text style={styles.helperError}>Passwords do not match</Text>
+          ) : null}
 
           <Pressable
             style={[styles.primaryBtn, (!canSubmit || loading) && styles.primaryBtnDisabled]}
-            onPress={handleSignIn}
+            onPress={handleSubmit}
             disabled={!canSubmit || loading}
             hitSlop={12}
           >
             {loading ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (
-              <Text style={styles.primaryBtnText}>Sign in</Text>
+              <Text style={styles.primaryBtnText}>Create account</Text>
             )}
           </Pressable>
         </View>
 
-        <Pressable style={styles.secondaryLink} onPress={() => router.replace('/parent-signup')} hitSlop={12}>
-          <Text style={styles.secondaryLinkText}>Don't have an account? Create account</Text>
+        <Pressable style={styles.secondaryLink} onPress={() => router.replace('/login')} hitSlop={12}>
+          <Text style={styles.secondaryLinkText}>Already have an account? Sign in</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -127,20 +152,14 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   label: { fontSize: 15, fontWeight: '600', color: '#2C2C2C', marginBottom: 8 },
-  input: {
-    backgroundColor: 'rgba(0,0,0,0.06)',
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 15,
-    color: '#2C2C2C',
-    marginBottom: 16,
-  },
+  input: { backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 12, padding: 14, fontSize: 15, color: '#2C2C2C', marginBottom: 4 },
+  inputError: { borderWidth: 1, borderColor: '#c62828' },
   passwordWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.06)',
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: 4,
     minHeight: 52,
     paddingLeft: 14,
     paddingRight: 4,
@@ -155,13 +174,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   eyeBtn: { padding: 14 },
-  primaryBtn: {
-    backgroundColor: '#8BC34A',
-    paddingVertical: 18,
-    borderRadius: 28,
-    alignItems: 'center',
-    marginTop: 8,
-  },
+  helperSmallItalic: { fontSize: 12, color: '#6B6B7B', fontStyle: 'italic', marginBottom: 12 },
+  helper: { fontSize: 13, color: '#6B6B7B', marginBottom: 12 },
+  helperError: { fontSize: 13, color: '#c62828', marginBottom: 12 },
+  primaryBtn: { backgroundColor: '#8BC34A', paddingVertical: 18, borderRadius: 28, alignItems: 'center', marginTop: 8 },
   primaryBtnDisabled: { opacity: 0.6 },
   primaryBtnText: { color: '#fff', fontSize: 18, fontWeight: '700' },
   secondaryLink: { alignItems: 'center', paddingVertical: 12 },
