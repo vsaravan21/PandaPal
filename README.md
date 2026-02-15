@@ -2,6 +2,13 @@
 
 Mobile app with tab-based navigation for iOS (and Android). Built with Expo and Expo Router. Gamified pediatric epilepsy care companion.
 
+## Auth & Role Select
+
+- **Role Select Gate**: After login (or app open when logged in), user chooses "I'm a Kid" or "I'm an Adult (Caregiver)".
+- **Kid**: No PIN. Goes straight to child home (tabs). Caregiver tab is hidden.
+- **Caregiver**: PIN required (set on first use). Dashboard, Trends, Logs, Care Plan, Settings. "Switch Role" returns to Role Select.
+- See [features/auth/README.md](features/auth/README.md) for flow, storage, and how to reset PIN in dev.
+
 ## Tabs
 
 - **Quests** – default tab

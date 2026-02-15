@@ -12,13 +12,6 @@ export default function AIParsingScreen() {
 
   return (
     <View style={styles.container}>
-      <Pressable
-        style={({ pressed }) => [styles.backWrap, pressed && { opacity: 0.7 }]}
-        onPress={() => router.back()}
-        accessibilityLabel="Go back"
-      >
-        <Text style={styles.backText}>← Back</Text>
-      </Pressable>
       <View style={styles.content}>
         <Text style={styles.title}>Review & Parse</Text>
         <Text style={styles.subtitle}>
@@ -38,19 +31,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#D9EEF9',
-  },
-  backWrap: {
-    alignSelf: 'flex-start',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    paddingTop: 56,
-    minHeight: 48,
-    justifyContent: 'center',
-  },
-  backText: {
-    color: '#8BC34A',
-    fontSize: 17,
-    fontWeight: '600',
   },
   content: {
     flex: 1,

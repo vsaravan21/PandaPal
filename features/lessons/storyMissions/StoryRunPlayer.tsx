@@ -160,6 +160,8 @@ export function StoryRunPlayer({ guideId, missionId, initialSeed }: Props) {
 
   const handleEndingClose = useCallback(async () => {
     if (!ending || !state) return;
+    const { addAdventure } = await import('@/features/pandaFriend/storage/pandaFriendStore');
+    await addAdventure();
     await profileStore.addLessonReward({
       xp: ending.rewards.xp,
       coins: ending.rewards.coins,

@@ -4,14 +4,14 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useProfile } from '@/features/profile/context/ProfileContext';
 import { useLessons } from '../context/LessonsContext';
 import type { LessonCategory } from '../types';
 import { LessonsTheme } from '../constants';
-import { DisclaimerBanner } from './DisclaimerBanner';
 import { LessonCard } from './LessonCard';
+import { getRecommendedLessonId } from '@/features/caregiver/storage/recommendedLessonStore';
 
 const CATEGORIES: LessonCategory[] = [
   'Safety',
@@ -31,6 +31,11 @@ export function LessonsHome() {
   const { level } = useProfile();
   const { lessons, progress, profile, loading, recommendedLesson } = useLessons();
   const [selectedCategory, setSelectedCategory] = React.useState<LessonCategory | null>(null);
+  const [caregiverRecommendedId, setCaregiverRecommendedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    getRecommendedLessonId().then(setCaregiverRecommendedId);
+  }, []);
 
   const filteredLessons = selectedCategory
     ? lessons.filter((l) => l.category === selectedCategory)
@@ -49,12 +54,31 @@ export function LessonsHome() {
     );
   }
 
+  const caregiverRecommended = caregiverRecommendedId
+    ? lessons.find((l) => l.id === caregiverRecommendedId)
+    : null;
+
   return (
     <View style={styles.container}>
-      <DisclaimerBanner />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        {/* Caregiver recommended badge */}
+        {caregiverRecommended && (
+          <Pressable
+            style={({ pressed }) => [styles.caregiverRecommendedCard, pressed && styles.continuePressed]}
+            onPress={() => router.push(`/lesson/${caregiverRecommended.id}`)}
+            accessibilityRole="button"
+            accessibilityLabel={`Caregiver recommended: ${caregiverRecommended.title}`}
+          >
+            <View style={styles.caregiverBadge}>
+              <Text style={styles.caregiverBadgeText}>Recommended</Text>
+            </View>
+            <Text style={styles.caregiverRecommendedTitle}>{caregiverRecommended.title}</Text>
+            <Ionicons name="chevron-forward" size={20} color={LessonsTheme.primary} style={styles.caregiverChevron} />
+          </Pressable>
+        )}
+
         {/* Continue card */}
-        {recommendedLesson && (
+        {recommendedLesson && recommendedLesson.id !== caregiverRecommendedId && (
           <Pressable
             style={({ pressed }) => [styles.continueCard, pressed && styles.continuePressed]}
             onPress={() => router.push(`/lesson/${recommendedLesson.id}`)}
@@ -154,6 +178,27 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 24,
   },
+  caregiverRecommendedCard: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
+    backgroundColor: LessonsTheme.calmBg,
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: LessonsTheme.primary,
+  },
+  caregiverBadge: {
+    backgroundColor: LessonsTheme.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  caregiverBadgeText: { color: '#fff', fontSize: 11, fontWeight: '600' },
+  caregiverRecommendedTitle: { flex: 1, marginLeft: 12, fontSize: 16, fontWeight: '600', color: LessonsTheme.text },
+  caregiverChevron: { marginLeft: 8 },
   continueCard: {
     marginHorizontal: 16,
     marginTop: 16,

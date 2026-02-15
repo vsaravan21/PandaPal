@@ -8,11 +8,10 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // MVP: accept any non-empty input and go to app
+  const handleLogin = async () => {
     if (email.trim() && password.trim()) {
-      setHasPanda(true);
-      router.replace('/(tabs)');
+      await setHasPanda(true);
+      router.replace('/role-select');
     }
   };
 
@@ -55,10 +54,6 @@ export default function LoginScreen() {
           disabled={!email.trim() || !password.trim()}
         >
           <Text style={styles.buttonText}>Sign in</Text>
-        </Pressable>
-
-        <Pressable style={({ pressed }) => [styles.backWrap, pressed && { opacity: 0.7 }]} onPress={() => router.back()}>
-          <Text style={styles.backText}>← Back</Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -112,14 +107,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
-  },
-  backWrap: {
-    marginTop: 24,
-    alignSelf: 'center',
-  },
-  backText: {
-    color: '#8BC34A',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

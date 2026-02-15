@@ -1,7 +1,25 @@
-import { Image, View, Text, StyleSheet, Pressable } from 'react-native';
+import { useEffect } from 'react';
+import { Image, View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function WelcomeScreen() {
+  const { hasPanda, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && hasPanda) {
+      router.replace('/role-select');
+    }
+  }, [hasPanda, loading]);
+
+  if (loading || hasPanda) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#2D7D46" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* Soft bokeh-style circles */}

@@ -6,8 +6,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProfileProvider } from '@/features/profile/context/ProfileContext';
+import { PandaFriendProvider } from '@/features/pandaFriend/context/PandaFriendContext';
 import { LessonsProvider } from '@/features/lessons/context/LessonsContext';
 import { useColorScheme } from '@/components/useColorScheme';
 
@@ -42,15 +44,27 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <ProfileProvider>
-        <LessonsProvider>
-          <RootLayoutNav />
-        </LessonsProvider>
-      </ProfileProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <ProfileProvider>
+          <PandaFriendProvider>
+            <LessonsProvider>
+              <RootLayoutNav />
+            </LessonsProvider>
+          </PandaFriendProvider>
+        </ProfileProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
+
+const headerBackOptions = {
+  headerShown: true,
+  headerBackTitle: 'Back',
+  headerTintColor: '#2D7D46',
+  headerStyle: { backgroundColor: '#e8f4f0' },
+  headerShadowVisible: false,
+};
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
@@ -59,15 +73,19 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="create-panda" />
-        <Stack.Screen name="create-panda-intro" />
-        <Stack.Screen name="caregiver-upload" />
-        <Stack.Screen name="ai-parsing" />
+        <Stack.Screen name="login" options={{ ...headerBackOptions, title: 'Sign in' }} />
+        <Stack.Screen name="role-select" options={{ ...headerBackOptions, title: 'Who\'s using PandaPal?' }} />
+        <Stack.Screen name="caregiver-pin-gate" options={{ ...headerBackOptions, title: 'Caregiver PIN' }} />
+        <Stack.Screen name="set-caregiver-pin" options={{ ...headerBackOptions, title: 'Set PIN' }} />
+        <Stack.Screen name="(caregiver)" options={{ headerShown: false }} />
+        <Stack.Screen name="create-panda" options={headerBackOptions} />
+        <Stack.Screen name="create-panda-intro" options={{ ...headerBackOptions, title: 'Create a New Panda' }} />
+        <Stack.Screen name="caregiver-upload" options={{ ...headerBackOptions, title: 'Upload care plan' }} />
+        <Stack.Screen name="ai-parsing" options={{ ...headerBackOptions, title: 'Processing' }} />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="lesson" options={{ headerShown: false }} />
         <Stack.Screen name="story-missions" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal', ...headerBackOptions }} />
       </Stack>
     </ThemeProvider>
   );

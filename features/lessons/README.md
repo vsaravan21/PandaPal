@@ -18,7 +18,6 @@ features/lessons/
 ├── context/
 │   └── LessonsContext.tsx
 ├── components/
-│   ├── DisclaimerBanner.tsx
 │   ├── LessonCard.tsx
 │   ├── LessonsHome.tsx
 │   ├── LessonPlayer.tsx
@@ -100,7 +99,6 @@ await lessonProgress.markLessonComplete(lessonId, {
 
 ## Safety
 
-- **Disclaimer banner** on every lesson screen: "PandaPal teaches general epilepsy safety. Ask your caregiver or doctor for medical decisions."
 - Content is general education only. No dosing, no treatment changes, no individualized advice.
 - Always: tell a trusted adult, follow your seizure action plan, call emergency services if your plan says so.
 

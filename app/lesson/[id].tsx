@@ -11,7 +11,6 @@ import { useLessons } from '@/features/lessons/context/LessonsContext';
 import { LESSONS } from '@/features/lessons/data/lessons';
 import type { Lesson, LessonProgress, LessonStep } from '@/features/lessons/types';
 import { computeMasteryScore } from '@/features/lessons/utils/scoring';
-import { DisclaimerBanner } from '@/features/lessons/components/DisclaimerBanner';
 import { LessonPlayerInner } from '@/features/lessons/components/LessonPlayer';
 import { RewardsModal } from '@/features/lessons/components/RewardsModal';
 
@@ -104,7 +103,6 @@ function LessonPlayerScreen() {
 
   return (
     <View style={styles.container}>
-      <DisclaimerBanner />
       <LessonPlayerInner
         lesson={lesson}
         currentStepIndex={currentStepIndex}

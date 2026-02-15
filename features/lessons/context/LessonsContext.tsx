@@ -71,6 +71,8 @@ export function LessonsProvider({ children }: { children: React.ReactNode }) {
       results: { masteryScore: number; xp: number; coins: number; items?: string[] }
     ) => {
       await lessonProgressApi.markLessonComplete(lessonId, results);
+      const { addAdventure } = await import('@/features/pandaFriend/storage/pandaFriendStore');
+      await addAdventure();
       const prof = await profileStore.addLessonReward({
         xp: results.xp,
         coins: results.coins,

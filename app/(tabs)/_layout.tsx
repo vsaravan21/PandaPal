@@ -1,7 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function TabLayout() {
+  const { role } = useAuth();
+  const showCaregiverTab = role === 'caregiver'; // Kid tabs: hide caregiver tab (caregiver uses separate stack)
+
   return (
     <Tabs
       screenOptions={{
@@ -20,6 +24,7 @@ export default function TabLayout() {
         name="avatar"
         options={{
           title: 'Avatar',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
         }}
       />
@@ -35,13 +40,15 @@ export default function TabLayout() {
         options={{
           title: 'Caregiver',
           tabBarIcon: ({ color, size }) => <Ionicons name="heart" size={size} color={color} />,
+          href: showCaregiverTab ? '/caregiver' : null,
         }}
       />
       <Tabs.Screen
         name="more"
         options={{
           title: 'More',
-          tabBarIcon: ({ color, size }) => <Ionicons name="menu" size={size} color={color} />,
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <Ionicons name="paw" size={size} color={color} />,
         }}
       />
     </Tabs>

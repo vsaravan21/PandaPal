@@ -109,14 +109,6 @@ export default function CaregiverUploadScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <Pressable
-          style={({ pressed }) => [styles.backWrap, pressed && { opacity: 0.7 }]}
-          onPress={() => router.back()}
-          accessibilityLabel="Go back"
-        >
-          <Text style={styles.backText}>← Back</Text>
-        </Pressable>
-
         <Text style={styles.title}>Upload Care Plan Details</Text>
         <Text style={styles.subtitle}>
           We turn clinical instructions into daily Panda quests
@@ -179,19 +171,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 56,
     paddingBottom: 40,
-  },
-  backWrap: {
-    alignSelf: 'flex-start',
-    paddingVertical: 12,
-    paddingRight: 16,
-    marginBottom: 8,
-    minHeight: 48,
-    justifyContent: 'center',
-  },
-  backText: {
-    color: '#8BC34A',
-    fontSize: 17,
-    fontWeight: '600',
   },
   title: {
     fontSize: 24,
