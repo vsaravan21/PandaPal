@@ -1,0 +1,44 @@
+import React from 'react';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
+import type { Scene } from '../sceneSchema';
+import { LessonsTheme } from '../../constants';
+
+interface Props {
+  scene: Scene;
+  onClose: () => void;
+}
+
+export function RecapSceneView({ scene, onClose }: Props) {
+  const rewards = scene.rewards;
+  return (
+    <View style={styles.container}>
+      <Text style={styles.emoji}>🎉</Text>
+      <Text style={styles.title}>Mission Complete!</Text>
+      <Text style={styles.summary}>{scene.narration}</Text>
+      {rewards && (
+        <View style={styles.rewards}>
+          <Text style={styles.reward}>🌟 +{rewards.xp} XP</Text>
+          <Text style={styles.reward}>🪙 +{rewards.coins} coins</Text>
+          {rewards.relics?.length ? (
+            <Text style={styles.reward}>🎁 {rewards.relics.length} relic(s)</Text>
+          ) : null}
+        </View>
+      )}
+      <Pressable style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]} onPress={onClose}>
+        <Text style={styles.buttonText}>Awesome!</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { padding: 24, alignItems: 'center' },
+  emoji: { fontSize: 48, marginBottom: 16 },
+  title: { fontSize: 22, fontWeight: '700', color: LessonsTheme.text, marginBottom: 12 },
+  summary: { fontSize: 16, color: LessonsTheme.textMuted, textAlign: 'center', lineHeight: 24, marginBottom: 24 },
+  rewards: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginBottom: 24 },
+  reward: { fontSize: 16, fontWeight: '600', color: LessonsTheme.text },
+  button: { backgroundColor: LessonsTheme.primary, paddingVertical: 14, paddingHorizontal: 32, borderRadius: 14 },
+  buttonPressed: { opacity: 0.9 },
+  buttonText: { fontSize: 18, fontWeight: '700', color: '#fff' },
+});
