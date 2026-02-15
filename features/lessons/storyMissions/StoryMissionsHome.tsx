@@ -10,7 +10,6 @@ import { GUIDES } from './seedMissions';
 import { getSelectedGuide } from './storage';
 import { getStoryRunPlayerState } from './storage';
 import { LessonsTheme } from '../constants';
-import { StoryMissionBanner } from './StoryMissionBanner';
 
 export function StoryMissionsHome() {
   const [guideId, setGuideId] = useState<string | null>(null);
@@ -44,7 +43,6 @@ export function StoryMissionsHome() {
 
   return (
     <View style={styles.container}>
-      <StoryMissionBanner />
       {!guideId ? (
         <Pressable
           style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}

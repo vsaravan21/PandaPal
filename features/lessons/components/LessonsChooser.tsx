@@ -11,7 +11,6 @@ import { LessonsTheme } from '../constants';
 export function LessonsChooser() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>📚 Learn</Text>
       <Text style={styles.subtitle}>Pick how you want to learn today!</Text>
 
       <Pressable
@@ -51,17 +50,11 @@ const styles = StyleSheet.create({
     padding: 24,
     backgroundColor: LessonsTheme.background,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: LessonsTheme.text,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
   subtitle: {
     fontSize: 17,
     color: LessonsTheme.textMuted,
     textAlign: 'center',
+    marginTop: 8,
     marginBottom: 32,
   },
   card: {
