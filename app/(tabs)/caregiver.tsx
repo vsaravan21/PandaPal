@@ -1,11 +1,15 @@
-import { StyleSheet } from 'react-native';
-import { Text, View } from '@/components/Themed';
+/**
+ * Caregiver tab - lessons progress + recommended
+ */
+
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { CaregiverLessonsView } from '@/features/lessons/components/CaregiverLessonsView';
 
 export default function CaregiverScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Caregiver</Text>
-      <Text style={styles.placeholder}>Content goes here</Text>
+      <CaregiverLessonsView />
     </View>
   );
 }
@@ -13,16 +17,6 @@ export default function CaregiverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  placeholder: {
-    marginTop: 8,
-    fontSize: 16,
-    opacity: 0.6,
+    backgroundColor: '#e8f4f0',
   },
 });

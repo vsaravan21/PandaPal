@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ProfileProvider } from '@/features/profile/context/ProfileContext';
+import { LessonsProvider } from '@/features/lessons/context/LessonsContext';
 import { useColorScheme } from '@/components/useColorScheme';
 
 export {
@@ -41,7 +43,11 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <ProfileProvider>
+        <LessonsProvider>
+          <RootLayoutNav />
+        </LessonsProvider>
+      </ProfileProvider>
     </AuthProvider>
   );
 }
@@ -56,6 +62,8 @@ function RootLayoutNav() {
         <Stack.Screen name="login" />
         <Stack.Screen name="create-panda" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="lesson" options={{ headerShown: false }} />
+        <Stack.Screen name="story-missions" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>

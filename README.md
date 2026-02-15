@@ -1,16 +1,21 @@
 # PandaPal
 
-Mobile app with tab-based navigation for iOS (and Android). Built with Expo and Expo Router.
+Mobile app with tab-based navigation for iOS (and Android). Built with Expo and Expo Router. Gamified pediatric epilepsy care companion.
 
 ## Tabs
 
 - **Quests** – default tab
 - **Avatar**
-- **Learn**
-- **Caregiver**
+- **Learn** – Interactive lessons for children (ages 7–12). See [features/lessons/README.md](features/lessons/README.md)
+- **Caregiver** – Lessons progress, mastery by topic, recommended next
 - **More**
 
-Screens are placeholders; add your content as you build the app.
+## Lessons Feature
+
+Interactive, gamified lessons for children. Education + adherence support only (no diagnosis or treatment advice).
+
+- **Navigate to Lessons:** Learn tab → Lessons Home. Tap any lesson card to open the player.
+- **Demo flow:** Tap "What is Epilepsy?" → Story → Tap-to-reveal cards → Breathing break → Complete → Rewards modal.
 
 ## Run on iOS
 
