@@ -17,6 +17,8 @@ import type { CarePlan, EditableCarePlan, Medication, EmergencyRule, FollowUp } 
 import { SectionCard } from '@/components/review/SectionCard';
 import { EditTaskBottomSheet } from '@/components/review/EditTaskBottomSheet';
 import { API_BASE_URL } from '@/constants/api';
+import { generateChildQuests } from '@/lib/questGenerator';
+import { setQuests } from '@/lib/questStore';
 
 /** Normalize and apply parsing rules: dedupe medications, merge emergency rules by action (e.g. Call 911), merge repetitive tasks. */
 function normalizeApiPlan(plan: CarePlan): EditableCarePlan {
@@ -299,6 +301,13 @@ export default function ReviewCarePlanScreen() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('Confirm failed');
+      const carePlanForQuests = {
+        medications: editablePlan.medications,
+        daily_care_tasks: editablePlan.daily_care_tasks,
+        restrictions: editablePlan.restrictions.filter(Boolean),
+      };
+      const quests = generateChildQuests(carePlanForQuests);
+      await setQuests(quests);
       router.replace('/parent-signup');
     } catch {
       Alert.alert('Error', 'Could not save. Try again.');
