@@ -1,5 +1,5 @@
 /**
- * Single quest row/card. Plays a cute bounce + XP pop when a task is completed.
+ * Single quest row/card. Plays checkmark bounce + heart burst from checkmark when completed.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -13,14 +13,25 @@ export interface QuestCardProps {
   onToggleComplete?: () => void;
 }
 
-const XP_POP_DURATION = 800;
+const HEART_BURST_DURATION = 1000;
+const NUM_BURST_HEARTS = 12;
+const BURST_OFFSETS = Array.from({ length: NUM_BURST_HEARTS }, (_, i) => {
+  const angle = (i / NUM_BURST_HEARTS) * Math.PI * 2;
+  const dist = 24 + (i % 3) * 12;
+  return { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist - 10 };
+});
 
 export function QuestCard({ title, points, completed, onToggleComplete }: QuestCardProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const xpPopY = useRef(new Animated.Value(0)).current;
-  const xpPopOpacity = useRef(new Animated.Value(0)).current;
   const prevCompleted = useRef(completed);
-  const [showXpPop, setShowXpPop] = useState(false);
+  const [showHeartBurst, setShowHeartBurst] = useState(false);
+  const heartAnims = useRef(
+    BURST_OFFSETS.map(() => ({
+      x: new Animated.Value(0),
+      y: new Animated.Value(0),
+      opacity: new Animated.Value(1),
+    }))
+  ).current;
 
   useEffect(() => {
     if (completed && !prevCompleted.current) {
@@ -39,30 +50,45 @@ export function QuestCard({ title, points, completed, onToggleComplete }: QuestC
           useNativeDriver: true,
         }),
       ]).start();
-      // "+X XP" float-up pop
-      setShowXpPop(true);
-      xpPopY.setValue(0);
-      xpPopOpacity.setValue(1);
-      Animated.parallel([
-        Animated.timing(xpPopY, {
-          toValue: -28,
-          duration: XP_POP_DURATION,
-          useNativeDriver: true,
-        }),
-        Animated.timing(xpPopOpacity, {
-          toValue: 0,
-          duration: XP_POP_DURATION,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setShowXpPop(false);
-        xpPopY.setValue(0);
-        xpPopOpacity.setValue(0);
+      // Heart burst from checkmark
+      setShowHeartBurst(true);
+      heartAnims.forEach((a) => {
+        a.x.setValue(0);
+        a.y.setValue(0);
+        a.opacity.setValue(1);
+      });
+      Animated.parallel(
+        heartAnims.map((anim, i) =>
+          Animated.parallel([
+            Animated.timing(anim.x, {
+              toValue: BURST_OFFSETS[i].x,
+              duration: HEART_BURST_DURATION,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim.y, {
+              toValue: BURST_OFFSETS[i].y,
+              duration: HEART_BURST_DURATION,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim.opacity, {
+              toValue: 0,
+              duration: HEART_BURST_DURATION,
+              useNativeDriver: true,
+            }),
+          ])
+        )
+      ).start(() => {
+        setShowHeartBurst(false);
+        heartAnims.forEach((a) => {
+          a.x.setValue(0);
+          a.y.setValue(0);
+          a.opacity.setValue(0);
+        });
       });
     } else if (!completed) {
       prevCompleted.current = false;
     }
-  }, [completed, scaleAnim, xpPopY, xpPopOpacity]);
+  }, [completed, scaleAnim]);
 
   return (
     <View style={[styles.card, completed && styles.cardCompleted]}>
@@ -70,21 +96,29 @@ export function QuestCard({ title, points, completed, onToggleComplete }: QuestC
         <Text style={[styles.title, completed && styles.titleCompleted]} numberOfLines={2}>
           {title}
         </Text>
-        <Text style={styles.points}>🌟 {points} XP</Text>
+        <Text style={styles.points}>❤️ {points}</Text>
       </View>
       <View style={styles.checkArea}>
-        {showXpPop && (
-          <Animated.View
-            style={[
-              styles.xpPop,
-              {
-                opacity: xpPopOpacity,
-                transform: [{ translateY: xpPopY }],
-              },
-            ]}
-          >
-            <Text style={styles.xpPopText}>+{points} XP</Text>
-          </Animated.View>
+        {showHeartBurst && (
+          <View style={styles.heartBurstWrap} pointerEvents="none">
+            {heartAnims.map((anim, i) => (
+              <Animated.View
+                key={i}
+                style={[
+                  styles.heartBurstItem,
+                  {
+                    transform: [
+                      { translateX: anim.x },
+                      { translateY: anim.y },
+                    ],
+                    opacity: anim.opacity,
+                  },
+                ]}
+              >
+                <Text style={styles.heartBurstEmoji}>❤️</Text>
+              </Animated.View>
+            ))}
+          </View>
         )}
         <Pressable
           style={styles.checkWrap}
@@ -111,36 +145,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 18,
     marginHorizontal: 24,
-    marginBottom: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.06)',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
   },
   cardCompleted: {
-    opacity: 0.85,
-    backgroundColor: '#f0f8f0',
+    backgroundColor: '#f4faf4',
+    borderColor: 'rgba(45, 125, 70, 0.15)',
+    borderLeftWidth: 3,
   },
   checkArea: {
     position: 'relative',
-    marginLeft: 14,
+    marginLeft: 16,
+    minWidth: 28,
+    minHeight: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heartBurstWrap: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heartBurstItem: {
+    position: 'absolute',
+  },
+  heartBurstEmoji: {
+    fontSize: 18,
   },
   checkWrap: {},
-  xpPop: {
-    position: 'absolute',
-    right: 0,
-    bottom: 36,
-    alignSelf: 'flex-end',
-  },
-  xpPopText: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#2D7D46',
-  },
   checkInner: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -150,25 +191,28 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: '#8E8E93',
+    borderColor: '#b0b0b8',
   },
   content: {
     flex: 1,
     minWidth: 0,
   },
   title: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#2C2C2C',
-    marginBottom: 4,
+    color: '#1a1a1a',
+    marginBottom: 6,
+    lineHeight: 21,
+    letterSpacing: 0.2,
   },
   titleCompleted: {
     textDecorationLine: 'line-through',
     color: '#6B6B7B',
   },
   points: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#2D7D46',
-    fontWeight: '500',
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
 });

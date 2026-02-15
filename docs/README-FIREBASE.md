@@ -2,9 +2,19 @@
 
 This document describes the Firebase (Auth, Firestore, Storage) setup and rules. **Rules are not deployed from code**; configure them in the Firebase Console.
 
+## How to get your Firebase config (new project)
+
+1. Go to [Firebase Console](https://console.firebase.google.com/) and sign in with Google.
+2. **Create a project** (or select an existing one): Click “Add project” → choose a name (e.g. `pandapal`) → follow the steps (Analytics optional).
+3. **Register a web app**: In the project overview, click the **</>** (Web) icon to add a web app → give it a nickname → don’t enable Firebase Hosting if you don’t need it → “Register app”.
+4. **Copy the config**: You’ll see a `firebaseConfig` object with `apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`. Copy each value into your `.env` (see below).
+5. **Enable Auth**: In the left sidebar go to **Build → Authentication** → “Get started” → enable **Email/Password** (and any other sign-in methods you need).
+6. **Create Firestore**: **Build → Firestore Database** → “Create database” → start in **test mode** for dev (lock it down later with the rules in this doc).
+7. **Create Storage**: **Build → Storage** → “Get started” → use default rules for dev (then replace with the storage rules in this doc).
+
 ## Environment variables
 
-Copy `.env.example` to `.env` and set:
+Copy `.env.example` to `.env` in the **project root** (not in `server/`) and set:
 
 - `EXPO_PUBLIC_FIREBASE_API_KEY`
 - `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN`
@@ -13,6 +23,8 @@ Copy `.env.example` to `.env` and set:
 - `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `EXPO_PUBLIC_FIREBASE_APP_ID`
 - `EXPO_PUBLIC_PIN_SALT` (optional; app has a default)
+
+Restart the Expo dev server after changing `.env` so the new values are picked up.
 
 ## Data model (Firestore)
 

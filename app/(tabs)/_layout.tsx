@@ -12,6 +12,12 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: '#2D7D46',
         tabBarInactiveTintColor: '#8E8E93',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopWidth: 1,
+          borderTopColor: 'rgba(0,0,0,0.08)',
+        },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: '600', letterSpacing: 0.2 },
       }}>
       <Tabs.Screen
         name="index"
