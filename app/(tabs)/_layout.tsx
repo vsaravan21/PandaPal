@@ -51,8 +51,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="more"
         options={{
-          title: 'More',
-          tabBarIcon: ({ color, size }) => <Ionicons name="menu" size={size} color={color} />,
+          title: 'My Care Plan',
+          tabBarIcon: ({ color, size }) => <Ionicons name="document-text" size={size} color={color} />,
         }}
       />
     </Tabs>
