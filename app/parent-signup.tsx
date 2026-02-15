@@ -10,9 +10,13 @@ import {
   Platform,
   ActivityIndicator,
   Image,
+  Alert,
 } from 'react-native';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { auth } from '@/lib/firebase';
+import { ensureParentDoc } from '@/features/backend/parents';
 
 export default function ParentSignupScreen() {
   const [email, setEmail] = useState('');
@@ -29,13 +33,20 @@ export default function ParentSignupScreen() {
     confirmPassword.length > 0 &&
     passwordsMatch;
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!canSubmit || loading) return;
     setLoading(true);
-    // No backend yet – any email/password accepted; go straight to PIN flow
-    router.replace('/create-pin');
-    setLoading(false);
-  }, [canSubmit, loading]);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      await ensureParentDoc(cred.user.uid, email.trim());
+      router.replace('/create-pin');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Could not create account. Try again.';
+      Alert.alert('Sign up', message);
+    } finally {
+      setLoading(false);
+    }
+  }, [canSubmit, loading, email, password]);
 
   return (
     <KeyboardAvoidingView

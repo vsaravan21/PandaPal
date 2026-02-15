@@ -19,4 +19,6 @@ export interface ChildProfile {
   level: number;
   inventory: string[];
   equippedItems: Record<ItemSlot, string | null>; // slot -> item id
+  /** Selected panda avatar id from onboarding; fallback "panda_default" when missing */
+  pandaAvatarId?: string;
 }

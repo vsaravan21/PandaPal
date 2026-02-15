@@ -3,9 +3,10 @@
  */
 
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { useProfile } from '../context/ProfileContext';
 import { UNLOCKABLES } from '../data/unlockables';
+import { getPandaAvatarById } from '../data/pandaAvatars';
 import type { ItemSlot } from '../types';
 
 const SLOT_LABELS: Record<ItemSlot, string> = {
@@ -21,6 +22,7 @@ export function PandaAvatar() {
   if (!profile) return null;
 
   const equipped = profile.equippedItems;
+  const pandaAvatar = getPandaAvatarById(profile.pandaAvatarId ?? 'panda_default');
 
   return (
     <View style={styles.container}>
@@ -37,7 +39,7 @@ export function PandaAvatar() {
       {/* Panda + equipped items */}
       <View style={styles.pandaArea}>
         <View style={styles.pandaBase}>
-          <Text style={styles.pandaEmoji}>🐼</Text>
+          <Image source={pandaAvatar.source} style={styles.pandaImage} resizeMode="contain" />
           {equipped.hat && (
             <View style={styles.itemOverlay}>
               <Text style={styles.itemEmoji}>
@@ -130,6 +132,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 4,
     borderColor: '#8CE0A1',
+    overflow: 'hidden',
+  },
+  pandaImage: {
+    width: '100%',
+    height: '100%',
   },
   pandaEmoji: {
     fontSize: 80,

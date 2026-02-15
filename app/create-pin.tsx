@@ -1,17 +1,33 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { PinInput } from '@/components/PinInput';
 import { setPendingPin } from '@/lib/parentAuthStore';
+import { useAuth } from '@/contexts/AuthContext';
+import { hashPin } from '@/features/backend/hashPin';
+import { setCaregiverPinHash } from '@/features/backend/parents';
 
 export default function CreatePinScreen() {
+  const { uid } = useAuth();
   const [pin, setPin] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const canContinue = pin.length === 4;
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!canContinue) return;
     setPendingPin(pin);
+    if (uid) {
+      setSaving(true);
+      try {
+        const pinHash = await hashPin(pin);
+        await setCaregiverPinHash(uid, pinHash);
+      } catch {
+        Alert.alert('Save PIN', 'Could not save PIN to cloud. It was saved on this device.');
+      } finally {
+        setSaving(false);
+      }
+    }
     router.replace('/create-panda-intro-child');
   };
 
@@ -32,12 +48,12 @@ export default function CreatePinScreen() {
         <PinInput length={4} value={pin} onChange={setPin} masked />
         <Text style={styles.helper}>Use a 4 digit PIN you can remember</Text>
         <Pressable
-          style={[styles.primaryBtn, !canContinue && styles.primaryBtnDisabled]}
+          style={[styles.primaryBtn, (!canContinue || saving) && styles.primaryBtnDisabled]}
           onPress={handleContinue}
-          disabled={!canContinue}
+          disabled={!canContinue || saving}
           hitSlop={12}
         >
-          <Text style={styles.primaryBtnText}>Continue</Text>
+          <Text style={styles.primaryBtnText}>{saving ? 'Saving…' : 'Continue'}</Text>
         </Pressable>
       </View>
 

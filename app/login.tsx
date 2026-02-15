@@ -10,10 +10,13 @@ import {
   Platform,
   ActivityIndicator,
   Image,
+  Alert,
 } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
+import { auth } from '@/lib/firebase';
 
 export default function LoginScreen() {
   const { setHasPanda } = useAuth();
@@ -24,14 +27,20 @@ export default function LoginScreen() {
 
   const canSubmit = email.trim().length > 0 && password.length > 0;
 
-  const handleSignIn = useCallback(() => {
+  const handleSignIn = useCallback(async () => {
     if (!canSubmit || loading) return;
     setLoading(true);
-    // No backend yet – any email/password accepted
-    setHasPanda(true);
-    router.replace('/role-select');
-    setLoading(false);
-  }, [canSubmit, loading, setHasPanda]);
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), password);
+      setHasPanda(true);
+      router.replace('/role-select');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sign in failed. Try again.';
+      Alert.alert('Sign in', message);
+    } finally {
+      setLoading(false);
+    }
+  }, [canSubmit, loading, setHasPanda, email, password]);
 
   return (
     <KeyboardAvoidingView

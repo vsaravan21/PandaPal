@@ -4,6 +4,7 @@ import {
 } from '@/components/UploadBottomSheet';
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
+import { setPendingCarePlan } from '@/features/backend/pendingCarePlan';
 import { useCallback, useState } from 'react';
 import {
   Alert,
@@ -76,6 +77,10 @@ export default function CaregiverUploadScreen() {
       })),
       clinicalText: clinicalText.trim(),
     };
+    setPendingCarePlan(
+      payload.uploadedFiles.map((f) => ({ uri: f.uri, name: f.name, categoryId: f.categoryId })),
+      payload.clinicalText
+    );
     router.push({
       pathname: '/ai-parsing',
       params: { payload: JSON.stringify(payload) },

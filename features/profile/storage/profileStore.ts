@@ -44,6 +44,7 @@ async function loadProfile(): Promise<ChildProfile> {
         ...DEFAULT_EQUIPPED,
         ...(parsed.equippedItems ?? {}),
       },
+      pandaAvatarId: parsed.pandaAvatarId ?? undefined,
     };
   } catch {
     return { ...DEFAULT_PROFILE };
@@ -92,6 +93,13 @@ export async function unlockItem(itemId: string, costXp: number): Promise<ChildP
   profile.inventory.push(itemId);
   const { xpToLevel } = await import('../utils/leveling');
   profile.level = xpToLevel(profile.xp);
+  await saveProfile(profile);
+  return profile;
+}
+
+export async function setPandaAvatarId(pandaAvatarId: string): Promise<ChildProfile> {
+  const profile = await loadProfile();
+  profile.pandaAvatarId = pandaAvatarId;
   await saveProfile(profile);
   return profile;
 }

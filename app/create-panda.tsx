@@ -10,29 +10,31 @@ import {
   Image,
   Animated,
   Dimensions,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { createChild } from '@/features/backend/children';
+import { uploadCareDoc, addClinicalInstructions } from '@/features/backend/carePlan';
+import { getPendingCarePlan, clearPendingCarePlan } from '@/features/backend/pendingCarePlan';
+import { setPandaAvatarId } from '@/features/profile/storage/profileStore';
+import { useProfile } from '@/features/profile/context/ProfileContext';
+import { getPandaAvatarsList } from '@/features/profile/data/pandaAvatars';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const AVATAR_DISPLAY_SIZE = 180;
-
-const AVATARS = [
-  { id: 'detective', label: 'Detective', source: require('../assets/images/detective_panda-Photoroom.png') },
-  { id: 'treasure', label: 'Treasure Hunter', source: require('../assets/images/treasure panda-Photoroom.png') },
-  { id: 'artist', label: 'Artist', source: require('../assets/images/aritst_panda-Photoroom.png') },
-  { id: 'doctor', label: 'Doctor', source: require('../assets/images/doctor panda.jpg') },
-  { id: 'astronaut', label: 'Astronaut', source: require('../assets/images/astronaut Panda-Photoroom.png') },
-  { id: 'diver', label: 'Deep Sea Diver', source: require('../assets/images/deepsea diver panda-Photoroom.png') },
-];
+const AVATARS = getPandaAvatarsList();
 
 export default function CreatePandaScreen() {
-  const { setHasPanda } = useAuth();
+  const { setHasPanda, uid } = useAuth();
+  const { refresh: refreshProfile } = useProfile();
   const [childName, setChildName] = useState('');
   const [pandaName, setPandaName] = useState('');
   const [selectedAvatarIndex, setSelectedAvatarIndex] = useState<number>(0);
   const [pastimeText, setPastimeText] = useState('');
   const [strengthText, setStrengthText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const hasChildName = childName.trim().length > 0;
@@ -59,10 +61,44 @@ export default function CreatePandaScreen() {
     });
   };
 
-  const handleMeetMyPanda = () => {
+  const handleMeetMyPanda = async () => {
     if (!canMeet) return;
-    setHasPanda(true);
-    router.replace('/role-select');
+    setSubmitting(true);
+    try {
+      let childId: string | null = null;
+      if (uid) {
+        childId = await createChild(uid, {
+          name: childName.trim(),
+          pandaName: pandaName.trim(),
+          pandaType: currentAvatar.id,
+          pandaAvatarId: currentAvatar.id,
+          favoritePastime: pastimeText.trim() || undefined,
+          pandaSuperpower: strengthText.trim() || undefined,
+        });
+        await setPandaAvatarId(currentAvatar.id);
+        await refreshProfile();
+        const pending = getPendingCarePlan();
+        if (pending && childId) {
+          try {
+            for (const f of pending.files) {
+              await uploadCareDoc(uid, childId, f.categoryId, f.uri);
+            }
+            if (pending.clinicalText.trim()) {
+              await addClinicalInstructions(uid, childId, pending.clinicalText);
+            }
+          } catch {
+            Alert.alert('Upload', 'Some care plan files could not be saved to the cloud.');
+          }
+          clearPendingCarePlan();
+        }
+      }
+      setHasPanda(true);
+      router.replace('/role-select');
+    } catch {
+      Alert.alert('Save', 'Could not save profile. Try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const currentAvatar = AVATARS[selectedAvatarIndex];
@@ -145,12 +181,16 @@ export default function CreatePandaScreen() {
         />
 
         <Pressable
-          style={[styles.primaryBtn, !canMeet && styles.primaryBtnDisabled]}
+          style={[styles.primaryBtn, (!canMeet || submitting) && styles.primaryBtnDisabled]}
           onPress={handleMeetMyPanda}
-          disabled={!canMeet}
+          disabled={!canMeet || submitting}
           hitSlop={20}
         >
-          <Text style={styles.primaryBtnText}>Meet My Panda</Text>
+          {submitting ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <Text style={styles.primaryBtnText}>Meet My Panda</Text>
+          )}
         </Pressable>
       </ScrollView>
     </View>
