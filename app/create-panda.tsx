@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   View,
   Text,
@@ -26,6 +27,7 @@ const AVATARS = [
 ];
 
 export default function CreatePandaScreen() {
+  const { setHasPanda } = useAuth();
   const [childName, setChildName] = useState('');
   const [pandaName, setPandaName] = useState('');
   const [selectedAvatarIndex, setSelectedAvatarIndex] = useState<number>(0);
@@ -59,7 +61,8 @@ export default function CreatePandaScreen() {
 
   const handleMeetMyPanda = () => {
     if (!canMeet) return;
-    router.replace('/(tabs)');
+    setHasPanda(true);
+    router.replace('/role-select');
   };
 
   const currentAvatar = AVATARS[selectedAvatarIndex];

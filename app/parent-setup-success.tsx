@@ -4,14 +4,14 @@ import { router } from 'expo-router';
 export default function ParentSetupSuccessScreen() {
   return (
     <View style={styles.container}>
-      <Pressable style={styles.backWrap} onPress={() => router.replace('/(tabs)')} hitSlop={12}>
+      <Pressable style={styles.backWrap} onPress={() => router.replace('/role-select')} hitSlop={12}>
         <Text style={styles.backText}>←</Text>
       </Pressable>
       <Text style={styles.title}>You're all set</Text>
       <Text style={styles.subtitle}>Your parent account is ready. Use your PIN to open the parent dashboard.</Text>
       <Pressable
         style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
-        onPress={() => router.replace('/(tabs)')}
+        onPress={() => router.replace('/role-select')}
         hitSlop={12}
       >
         <Text style={styles.primaryBtnText}>Go to dashboard</Text>

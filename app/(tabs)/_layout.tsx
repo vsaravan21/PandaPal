@@ -1,7 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function TabLayout() {
+  const { role } = useAuth();
+  const showCaregiverTab = role === 'caregiver';
+
   return (
     <Tabs
       screenOptions={{
@@ -35,6 +39,7 @@ export default function TabLayout() {
         options={{
           title: 'Caregiver',
           tabBarIcon: ({ color, size }) => <Ionicons name="heart" size={size} color={color} />,
+          href: showCaregiverTab ? '/caregiver' : null,
         }}
       />
       <Tabs.Screen

@@ -29,7 +29,7 @@ export default function LoginScreen() {
     setLoading(true);
     // No backend yet – any email/password accepted
     setHasPanda(true);
-    router.replace('/(tabs)');
+    router.replace('/role-select');
     setLoading(false);
   }, [canSubmit, loading, setHasPanda]);
 

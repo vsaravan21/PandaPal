@@ -69,6 +69,10 @@ function RootLayoutNav() {
         <Stack.Screen name="create-pin" />
         <Stack.Screen name="create-panda-intro-child" />
         <Stack.Screen name="parent-setup-success" />
+        <Stack.Screen name="role-select" />
+        <Stack.Screen name="caregiver-pin-gate" />
+        <Stack.Screen name="set-caregiver-pin" />
+        <Stack.Screen name="(caregiver)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="lesson" options={{ headerShown: false }} />
         <Stack.Screen name="story-missions" options={{ headerShown: false }} />

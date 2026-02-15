@@ -4,15 +4,21 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLessons } from '../context/LessonsContext';
 import { LESSONS } from '../data/lessons';
 import { getRecommendedNextLesson } from '../utils/scoring';
 import { LessonsTheme } from '../constants';
+import * as recommendedLessonStore from '@/features/caregiver/storage/recommendedLessonStore';
 
 export function CaregiverLessonsView() {
-  const { progress, loading, recommendedLesson } = useLessons();
+  const { progress, loading } = useLessons();
+  const [caregiverRecommendedId, setCaregiverRecommendedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    recommendedLessonStore.getRecommendedLessonId().then(setCaregiverRecommendedId);
+  }, []);
 
   const completed = Object.values(progress).filter((p) => p.completed);
   const totalTimeMinutes = completed.reduce((sum, p) => {
@@ -26,7 +32,8 @@ export function CaregiverLessonsView() {
         )
       : 0;
 
-  const recommended = recommendedLesson ?? getRecommendedNextLesson(LESSONS, progress);
+  const caregiverRec = caregiverRecommendedId ? LESSONS.find((l) => l.id === caregiverRecommendedId) : null;
+  const recommended = caregiverRec ?? getRecommendedNextLesson(LESSONS, progress);
 
   if (loading) {
     return (
