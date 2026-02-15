@@ -44,13 +44,6 @@ export default function WelcomeScreen() {
         >
           <Text style={styles.primaryButtonText}>Create a New Panda</Text>
         </Pressable>
-
-        <Pressable
-          style={({ pressed }) => [styles.linkWrap, pressed && { opacity: 0.7 }]}
-          onPress={() => router.push('/login')}
-        >
-          <Text style={styles.linkText}>I already have my Panda</Text>
-        </Pressable>
       </View>
     </View>
   );
@@ -150,14 +143,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
-  },
-  linkWrap: {
-    marginTop: 20,
-    paddingVertical: 8,
-  },
-  linkText: {
-    color: '#6DCF8A',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });

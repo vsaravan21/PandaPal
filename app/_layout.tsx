@@ -73,7 +73,6 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
-        <Stack.Screen name="login" options={{ ...headerBackOptions, title: 'Sign in' }} />
         <Stack.Screen name="role-select" options={{ ...headerBackOptions, title: 'Who\'s using PandaPal?' }} />
         <Stack.Screen name="caregiver-pin-gate" options={{ ...headerBackOptions, title: 'Caregiver PIN' }} />
         <Stack.Screen name="set-caregiver-pin" options={{ ...headerBackOptions, title: 'Set PIN' }} />
