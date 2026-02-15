@@ -1,98 +1,79 @@
-import { useState, useCallback } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
+  UploadBottomSheet,
+  type DocumentCategory,
+} from '@/components/UploadBottomSheet';
+import * as DocumentPicker from 'expo-document-picker';
+import { router } from 'expo-router';
+import { useCallback, useState } from 'react';
+import {
+  Alert,
+  Image,
   Pressable,
   ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
-  Alert,
+  View,
 } from 'react-native';
-import { router } from 'expo-router';
-import * as DocumentPicker from 'expo-document-picker';
-import { UploadCard, type UploadFileInfo } from '@/components/UploadCard';
 
-const CARD_KEYS = [
-  'discharge',
-  'seizure',
-  'medication',
-  'other',
-] as const;
-
-type CardKey = (typeof CARD_KEYS)[number];
-
-const CARD_CONFIG: Record<
-  CardKey,
-  { label: string; helper: string; acceptTypes: string }
-> = {
-  discharge: {
-    label: 'Upload discharge instructions',
-    helper: 'Hospital or clinic discharge papers',
-    acceptTypes: 'PDF',
-  },
-  seizure: {
-    label: 'Upload seizure action plan',
-    helper: 'Emergency and response protocol',
-    acceptTypes: 'PDF',
-  },
-  medication: {
-    label: 'Upload medication schedule',
-    helper: 'Dose timing and medication list',
-    acceptTypes: 'PDF',
-  },
-  other: {
-    label: 'Other clinical documents',
-    helper: 'Any additional care instructions',
-    acceptTypes: 'PDF',
-  },
+export type UploadedFileWithCategory = {
+  name: string;
+  uri: string;
+  category: DocumentCategory;
 };
 
 export default function CaregiverUploadScreen() {
-  const [filesByCard, setFilesByCard] = useState<Record<CardKey, UploadFileInfo[]>>({
-    discharge: [],
-    seizure: [],
-    medication: [],
-    other: [],
-  });
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFileWithCategory[]>([]);
   const [clinicalText, setClinicalText] = useState('');
 
-  const totalUploadedFiles = CARD_KEYS.reduce((sum, key) => sum + filesByCard[key].length, 0);
+  const totalUploadedFiles = uploadedFiles.length;
   const canContinue = totalUploadedFiles > 0 || clinicalText.trim().length > 0;
 
-  const pickDocument = useCallback(async (cardKey: CardKey) => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/pdf',
-        copyToCacheDirectory: true,
-        multiple: true,
-      });
-      if (result.canceled) return;
-      const newFiles: UploadFileInfo[] = result.assets.map((a) => ({
-        name: a.name ?? 'Document',
-        uri: a.uri,
-      }));
-      setFilesByCard((prev) => ({
-        ...prev,
-        [cardKey]: [...prev[cardKey], ...newFiles],
-      }));
-    } catch (e) {
-      Alert.alert('Upload', 'Could not open file picker. Please try again.');
-    }
-  }, []);
+  const pickDocument = useCallback(
+    async (category: DocumentCategory): Promise<boolean> => {
+      try {
+        const result = await DocumentPicker.getDocumentAsync({
+          type: 'application/pdf',
+          copyToCacheDirectory: true,
+          multiple: true,
+        });
+        if (result.canceled) return false;
+        const newFiles: UploadedFileWithCategory[] = result.assets.map((a) => ({
+          name: a.name ?? 'Document',
+          uri: a.uri,
+          category,
+        }));
+        setUploadedFiles((prev) => [...prev, ...newFiles]);
+        return newFiles.length > 0;
+      } catch (e) {
+        Alert.alert('Upload', 'Could not open file picker. Please try again.');
+        return false;
+      }
+    },
+    []
+  );
 
-  const removeFile = useCallback((cardKey: CardKey, index: number) => {
-    setFilesByCard((prev) => ({
-      ...prev,
-      [cardKey]: prev[cardKey].filter((_, i) => i !== index),
-    }));
+  const handleSelectCategory = useCallback(
+    async (category: DocumentCategory) => {
+      const added = await pickDocument(category);
+      if (added) setSheetVisible(false);
+    },
+    [pickDocument]
+  );
+
+  const removeFile = useCallback((index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   const handleContinue = () => {
     if (!canContinue) return;
     const payload = {
-      filesByCard: Object.fromEntries(
-        CARD_KEYS.map((k) => [k, filesByCard[k].map((f) => ({ name: f.name, uri: f.uri }))])
-      ) as Record<string, { name: string; uri: string }[]>,
+      uploadedFiles: uploadedFiles.map((f) => ({
+        name: f.name,
+        uri: f.uri,
+        categoryId: f.category.id,
+      })),
       clinicalText: clinicalText.trim(),
     };
     router.push({
@@ -109,36 +90,70 @@ export default function CaregiverUploadScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <Pressable
-          style={({ pressed }) => [styles.backWrap, pressed && { opacity: 0.7 }]}
-          onPress={() => router.back()}
-          accessibilityLabel="Go back"
-        >
-          <Text style={styles.backText}>← Back</Text>
-        </Pressable>
+        <View style={styles.headerRow}>
+          <Pressable
+            style={({ pressed }) => [styles.backWrap, pressed && { opacity: 0.7 }]}
+            onPress={() => router.back()}
+            accessibilityLabel="Go back"
+          >
+            <Text style={styles.backText}>←</Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [styles.skipWrap, pressed && { opacity: 0.7 }]}
+            onPress={() => router.replace('/parent-signup')}
+            accessibilityLabel="Skip to create account"
+          >
+            <Text style={styles.skipText}>Skip</Text>
+          </Pressable>
+        </View>
 
         <Text style={styles.title}>Upload Care Plan Details</Text>
-        <Text style={styles.subtitle}>
-          We turn clinical instructions into daily Panda quests
-        </Text>
 
-        {CARD_KEYS.map((key) => (
-          <UploadCard
-            key={key}
-            label={CARD_CONFIG[key].label}
-            helper={CARD_CONFIG[key].helper}
-            files={filesByCard[key]}
-            onUpload={() => pickDocument(key)}
-            onRemoveFile={(index) => removeFile(key, index)}
-          />
-        ))}
+        <Image
+          source={require('../assets/images/doctor panda.jpg')}
+          style={styles.doctorPandaImage}
+          resizeMode="contain"
+        />
 
-        <Text style={styles.supportedFormats}>
-          Supported format: PDF
-        </Text>
+        <Pressable
+          style={({ pressed }) => [styles.primaryCard, pressed && styles.primaryCardPressed]}
+          onPress={() => setSheetVisible(true)}
+        >
+          <Text style={styles.primaryCardTitle}>Upload Medical Documents</Text>
+          <Text style={styles.primaryCardDescription}>
+            Care plans, medication, discharge reports & more
+          </Text>
+          <View style={styles.uploadButtonWrap}>
+            <Text style={styles.uploadButtonText}>Upload</Text>
+          </View>
+        </Pressable>
+
+        {uploadedFiles.length > 0 && (
+          <View style={styles.attachedSection}>
+            {uploadedFiles.map((file, index) => (
+              <View key={`${file.uri}-${index}`} style={styles.attachedRow}>
+                <View style={styles.attachedInfo}>
+                  <Text style={styles.attachedName} numberOfLines={1}>
+                    {file.name}
+                  </Text>
+                  <View style={styles.categoryTag}>
+                    <Text style={styles.categoryTagText}>{file.category.title}</Text>
+                  </View>
+                </View>
+                <Pressable
+                  style={({ pressed }) => [styles.removeButton, pressed && { opacity: 0.7 }]}
+                  onPress={() => removeFile(index)}
+                  accessibilityLabel={`Remove ${file.name}`}
+                >
+                  <Text style={styles.removeButtonText}>Remove</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        )}
 
         <View style={styles.textCard}>
-          <Text style={styles.textCardTitle}>Or paste clinical text</Text>
+          <Text style={styles.textCardTitle}>Add Clinical Instructions by Text</Text>
           <TextInput
             style={styles.textInput}
             placeholder="Paste medication rules, safety steps, or care instructions here"
@@ -152,17 +167,23 @@ export default function CaregiverUploadScreen() {
 
         <Pressable
           style={({ pressed }) => [
-            styles.primaryButton,
-            !canContinue && styles.primaryButtonDisabled,
-            pressed && canContinue && styles.primaryButtonPressed,
+            styles.continueButton,
+            !canContinue && styles.continueButtonDisabled,
+            pressed && canContinue && styles.continueButtonPressed,
           ]}
           onPress={handleContinue}
           disabled={!canContinue}
           accessibilityLabel="Continue to Review"
         >
-          <Text style={styles.primaryButtonText}>Continue to Review</Text>
+          <Text style={styles.continueButtonText}>Continue to Review</Text>
         </Pressable>
       </ScrollView>
+
+      <UploadBottomSheet
+        visible={sheetVisible}
+        onClose={() => setSheetVisible(false)}
+        onSelectCategory={handleSelectCategory}
+      />
     </View>
   );
 }
@@ -170,7 +191,7 @@ export default function CaregiverUploadScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#D9EEF9',
+    backgroundColor: '#e0eeee',
   },
   scroll: {
     flex: 1,
@@ -180,8 +201,13 @@ const styles = StyleSheet.create({
     paddingTop: 56,
     paddingBottom: 40,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   backWrap: {
-    alignSelf: 'flex-start',
     paddingVertical: 12,
     paddingRight: 16,
     marginBottom: 8,
@@ -193,23 +219,117 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
   },
+  skipWrap: {
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  skipText: {
+    color: '#8BC34A',
+    fontSize: 15,
+    fontWeight: '600',
+  },
   title: {
     fontSize: 24,
     fontWeight: '700',
     color: '#2C2C2C',
     marginBottom: 6,
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 15,
-    color: '#6B6B7B',
-    marginBottom: 24,
-    lineHeight: 22,
+  doctorPandaImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 8,
+    alignSelf: 'center',
   },
-  supportedFormats: {
-    fontSize: 12,
+  primaryCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  primaryCardPressed: {
+    opacity: 0.98,
+  },
+  primaryCardTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#2C2C2C',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  primaryCardDescription: {
+    fontSize: 13,
     color: '#6B6B7B',
+    lineHeight: 19,
     marginBottom: 20,
-    marginTop: -4,
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  uploadButtonWrap: {
+    alignSelf: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 14,
+    backgroundColor: 'rgba(139, 195, 74, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 195, 74, 0.5)',
+  },
+  uploadButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#5a8a2d',
+  },
+  attachedSection: {
+    marginBottom: 16,
+    gap: 10,
+  },
+  attachedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  attachedInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  attachedName: {
+    fontSize: 15,
+    color: '#2C2C2C',
+    marginBottom: 4,
+  },
+  categoryTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(139, 195, 74, 0.2)',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  categoryTagText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#5a8a2d',
+  },
+  removeButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  removeButtonText: {
+    color: '#c62828',
+    fontSize: 14,
+    fontWeight: '600',
   },
   textCard: {
     backgroundColor: '#fff',
@@ -227,17 +347,19 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#2C2C2C',
     marginBottom: 12,
+    textAlign: 'center',
   },
   textInput: {
     backgroundColor: 'rgba(0,0,0,0.04)',
     borderRadius: 12,
     padding: 14,
-    fontSize: 15,
+    fontSize: 13,
     color: '#2C2C2C',
+    fontStyle: 'italic',
     minHeight: 120,
     maxHeight: 200,
   },
-  primaryButton: {
+  continueButton: {
     backgroundColor: '#8BC34A',
     paddingVertical: 18,
     borderRadius: 28,
@@ -248,13 +370,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  primaryButtonDisabled: {
+  continueButtonDisabled: {
     opacity: 0.5,
   },
-  primaryButtonPressed: {
+  continueButtonPressed: {
     opacity: 0.9,
   },
-  primaryButtonText: {
+  continueButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',

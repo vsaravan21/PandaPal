@@ -1,5 +1,5 @@
-import { Image, View, Text, StyleSheet, Pressable } from 'react-native';
 import { router } from 'expo-router';
+import { Image, View, Text, StyleSheet, Pressable } from 'react-native';
 
 export default function WelcomeScreen() {
   return (
@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
 
         <Pressable
           style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
-          onPress={() => router.push('/create-panda-intro')}
+          onPress={() => router.push('/create-panda-intro' as const)}
         >
           <Text style={styles.primaryButtonText}>Create a New Panda</Text>
         </Pressable>
@@ -111,9 +111,10 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 48,
     opacity: 0.9,
+    fontStyle: 'italic',
   },
   primaryButton: {
-    backgroundColor: '#8CE0A1',
+    backgroundColor: '#8BC34A',
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderRadius: 28,
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   linkText: {
-    color: '#6DCF8A',
+    color: '#8BC34A',
     fontSize: 16,
     fontWeight: '600',
   },
